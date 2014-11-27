@@ -2,6 +2,7 @@ var express = require('express');
 var util = require('./lib/utility');
 var partials = require('express-partials');
 var bodyParser = require('body-parser');
+var sessions = require('express-session');
 
 
 var db = require('./app/config');
@@ -24,6 +25,15 @@ app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(express.static(__dirname + '/public'));
 
+
+app.use(session({
+  secret: 'Brett & Nikhil',
+  resave: false,
+  saveUninitialized: true,
+  genid: function(req) {
+    return genuuid(); // use UUIDs for session IDs
+  }
+}));
 
 app.get('/',
 function(req, res) {
@@ -106,21 +116,12 @@ function(req, res) {
 });
 
 app.post('/signup', function(req, res) {
-  db.knex('users')
-    .where({
-      'username': req.body.username
-    })
-    .then(function() {
-
-    })
-    .catch(function() {
-      var user = new User({
-        'username': req.body.username,
-        'password': req.body.password
-      }).save().then(function() {
-        res.send(201);
-      })
-    })
+  var user = new User({
+    'username': req.body.username,
+    'password': req.body.password
+  }).save().then(function() {
+    res.send(201);
+  })
 });
 
 
