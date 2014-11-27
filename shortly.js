@@ -11,6 +11,8 @@ var Links = require('./app/collections/links');
 var Link = require('./app/models/link');
 var Click = require('./app/models/click');
 
+var isLoggedIn = false;
+
 var app = express();
 
 app.set('views', __dirname + '/views');
@@ -25,19 +27,31 @@ app.use(express.static(__dirname + '/public'));
 
 app.get('/',
 function(req, res) {
-  res.render('index');
+  if (!isLoggedIn) {
+    res.redirect('/login');
+  } else {
+    res.render('index');
+  }
 });
 
 app.get('/create',
 function(req, res) {
-  res.render('index');
+  if (!isLoggedIn) {
+    res.redirect('/login');
+  } else {
+    res.render('index');
+  }
 });
 
 app.get('/links',
 function(req, res) {
-  Links.reset().fetch().then(function(links) {
-    res.send(200, links.models);
-  });
+  if (! isLoggedIn) {
+    res.redirect('/login');
+  } else {
+    Links.reset().fetch().then(function(links) {
+      res.send(200, links.models);
+    });
+  }
 });
 
 app.post('/links',
@@ -58,7 +72,6 @@ function(req, res) {
           console.log('Error reading URL heading: ', err);
           return res.send(404);
         }
-        console.log('title:----------------------------------------------', title)
         var link = new Link({
           url: uri,
           title: title,
@@ -77,7 +90,38 @@ function(req, res) {
 /************************************************************/
 // Write your authentication routes here
 /************************************************************/
+app.get('/login',
+function(req, res) {
+  res.render('login');
+});
 
+app.post('/login', function(req, res) {
+
+  res.send(201);
+});
+
+app.get('/signup',
+function(req, res) {
+  res.render('signup');
+});
+
+app.post('/signup', function(req, res) {
+  db.knex('users')
+    .where({
+      'username': req.body.username
+    })
+    .then(function() {
+
+    })
+    .catch(function() {
+      var user = new User({
+        'username': req.body.username,
+        'password': req.body.password
+      }).save().then(function() {
+        res.send(201);
+      })
+    })
+});
 
 
 /************************************************************/

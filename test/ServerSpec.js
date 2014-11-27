@@ -22,7 +22,6 @@ describe('', function() {
   beforeEach(function() {
     // log out currently signed in user
     request('http://127.0.0.1:4568/logout', function(error, res, body) {});
-
     // delete link for roflzoo from db so it can be created later for the test
     db.knex('urls')
       .where('url', '=', 'http://www.roflzoo.com/')
@@ -63,7 +62,7 @@ describe('', function() {
 
     var requestWithSession = request.defaults({jar: true});
 
-    xbeforeEach(function(done){      // create a user that we can then log-in with
+    beforeEach(function(done){      // create a user that we can then log-in with
       new User({
           'username': 'Phillip',
           'password': 'Phillip'
@@ -139,7 +138,6 @@ describe('', function() {
             .where('title', '=', 'Funny animal pictures, funny animals, funniest dogs')
             .then(function(urls) {
               if (urls['0'] && urls['0']['title']) {
-                console.log('reaching if in then');
                 var foundTitle = urls['0']['title'];
               }
               expect(foundTitle).to.equal('Funny animal pictures, funny animals, funniest dogs');
@@ -156,11 +154,13 @@ describe('', function() {
 
       beforeEach(function(done){
         // save a link to the database
+
         link = new Link({
           url: 'http://www.roflzoo.com/',
           title: 'Rofl Zoo - Daily funny animal pictures',
           base_url: 'http://127.0.0.1:4568'
         });
+        console.log(link);
         link.save().then(function(){
           done();
         });
@@ -175,6 +175,8 @@ describe('', function() {
             'url': 'http://www.roflzoo.com/'
           }
         };
+
+        // console.log(link);
 
         requestWithSession(options, function(error, res, body) {
           var code = res.body.code;
@@ -213,7 +215,7 @@ describe('', function() {
 
   }); // 'Link creation'
 
-  xdescribe('Priviledged Access:', function(){
+  describe('Priviledged Access:', function(){
 
     it('Redirects to login page if a user tries to access the main page and is not signed in', function(done) {
       request('http://127.0.0.1:4568/', function(error, res, body) {
@@ -238,7 +240,7 @@ describe('', function() {
 
   }); // 'Priviledged Access'
 
-  xdescribe('Account Creation:', function(){
+  describe('Account Creation:', function(){
 
     it('Signup creates a user record', function(done) {
       var options = {
@@ -286,7 +288,7 @@ describe('', function() {
 
   }); // 'Account Creation'
 
-  xdescribe('Account Login:', function(){
+  describe('Account Login:', function(){
 
     var requestWithSession = request.defaults({jar: true});
 
